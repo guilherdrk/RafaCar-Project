@@ -20,13 +20,13 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class Veiculo {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
     private String nome;
+
     @NotNull
     @DecimalMin(value = "0.0", inclusive = true)
     private BigDecimal preco;
@@ -35,6 +35,6 @@ public class Veiculo {
     @DecimalMin(value = "0.0", inclusive = true)
     private BigDecimal custo;
 
-    private String imageUrl;
-
+    // URL da imagem do veículo
+    private String imagemUrl;
 }

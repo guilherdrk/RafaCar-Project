@@ -22,15 +22,16 @@ public class Venda {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(optional = false)
+    private Veiculo veiculo;
+
     @NotNull
     @Min(1)
     private Integer quantidade;
 
+    // Custos adicionais dessa venda (ex: documentação, frete, taxas variadas)
     @DecimalMin(value = "0.0", inclusive = true)
     private BigDecimal outros;
 
     private LocalDateTime dataVenda;
-
-    @ManyToOne(optional = false)
-    private Veiculo veiculo;
 }

@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rafacar_db
+    username: rafacar
+    password: rafacar123
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+  application:
+    name: rafacar-backend
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /swagger
