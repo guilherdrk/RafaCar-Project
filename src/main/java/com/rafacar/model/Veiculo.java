@@ -4,6 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,9 +25,16 @@ public class Veiculo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String nome;
-    private String imagemUrl;
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = true)
     private BigDecimal preco;
+
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = true)
     private BigDecimal custo;
+
+    private String imageUrl;
 
 }
