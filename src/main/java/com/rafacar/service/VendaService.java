@@ -12,11 +12,6 @@ import java.util.List;
 public class VendaService {
     private final VendaRepository repo;
 
-    public Venda criar(Venda v) {
-        return repo.save(v);
-    }
-
-    public List<Venda> listar() {
-        return repo.findAll();
-    }
+    public Venda criar(Venda v) { return repo.save(v); }
+    public List<Venda> listar() { return repo.findAll(); }
 }

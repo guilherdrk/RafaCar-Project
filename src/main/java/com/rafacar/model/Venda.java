@@ -1,15 +1,10 @@
 package com.rafacar.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,13 +20,15 @@ public class Venda {
     @ManyToOne(optional = false)
     private Veiculo veiculo;
 
+    /** Quantidade de diárias alugadas */
     @NotNull
     @Min(1)
     private Integer quantidade;
 
-    // Custos adicionais dessa venda (ex: documentação, frete, taxas variadas)
-    @DecimalMin(value = "0.0", inclusive = true)
-    private BigDecimal outros;
-
     private LocalDateTime dataVenda;
+    
+    @PrePersist
+    public void prePersist(){
+        if (dataVenda == null) dataVenda = LocalDateTime.now();
+    }
 }

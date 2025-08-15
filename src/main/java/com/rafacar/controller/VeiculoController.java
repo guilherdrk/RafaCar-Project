@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/veiculos")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class VeiculoController {
     private final VeiculoService service;
@@ -23,14 +24,10 @@ public class VeiculoController {
     }
 
     @GetMapping
-    public List<Veiculo> listar() {
-        return service.listar();
-    }
+    public List<Veiculo> listar() { return service.listar(); }
 
     @GetMapping("/{id}")
-    public Veiculo obter(@PathVariable Long id) {
-        return service.obter(id);
-    }
+    public Veiculo obter(@PathVariable Long id) { return service.obter(id); }
 
     @PutMapping("/{id}")
     public Veiculo atualizar(@PathVariable Long id, @Valid @RequestBody Veiculo v) {

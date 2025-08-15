@@ -12,18 +12,9 @@ import java.util.List;
 public class VeiculoService {
     private final VeiculoRepository repo;
 
-    public Veiculo criar(Veiculo v) {
-        return repo.save(v);
-    }
-
-    public List<Veiculo> listar() {
-        return repo.findAll();
-    }
-
-    public Veiculo obter(Long id) {
-        return repo.findById(id).orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
-    }
-
+    public Veiculo criar(Veiculo v) { return repo.save(v); }
+    public List<Veiculo> listar() { return repo.findAll(); }
+    public Veiculo obter(Long id) { return repo.findById(id).orElseThrow(); }
     public Veiculo atualizar(Long id, Veiculo v) {
         Veiculo atual = obter(id);
         atual.setNome(v.getNome());
@@ -32,8 +23,5 @@ public class VeiculoService {
         atual.setImagemUrl(v.getImagemUrl());
         return repo.save(atual);
     }
-
-    public void remover(Long id) {
-        repo.deleteById(id);
-    }
+    public void remover(Long id) { repo.deleteById(id); }
 }
