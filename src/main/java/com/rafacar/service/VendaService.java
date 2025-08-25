@@ -14,4 +14,8 @@ public class VendaService {
 
     public Venda criar(Venda v) { return repo.save(v); }
     public List<Venda> listar() { return repo.findAll(); }
+
+    public void deletarVenda(Long id) {
+        repo.deleteById(id);
+    }
 }

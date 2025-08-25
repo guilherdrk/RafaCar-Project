@@ -35,3 +35,22 @@ Acesse o Swagger em: `http://localhost:8080/swagger`
 
 - `POST /vendas` — cria venda (com campo `outros` por venda)
 - `GET /vendas` — lista vendas em formato calculado (DTO)
+
+
+# Patches de Despesas / Financeiro — RafaCar
+
+## Novos arquivos
+- `model/Despesa.java`
+- `repository/DespesaRepository.java`
+- `service/DespesaService.java`
+- `controller/DespesaController.java`
+- `controller/FinanceiroController.java`
+
+
+## Endpoints adicionados
+- `POST /despesas` — body: `{ descricao, valor, data (yyyy-MM-dd), veiculo: { id } | null }`
+- `GET /despesas` — lista
+- `DELETE /despesas/{id}` — remove despesa
+- `GET /despesas/resumo-mensal` — [{ano, mes, valor}] (somatório de despesas por mês)
+- `GET /financeiro/resumo-mensal` — [{ano, mes, receita, despesas, lucro}] (receita = soma de lucros das vendas)
+

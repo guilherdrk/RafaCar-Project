@@ -34,4 +34,47 @@ public class VendaController {
     public List<VendaDTO> listar() {
         return vendaService.listar().stream().map(VendaDTO::new).toList();
     }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarVenda(@PathVariable Long id) {
+        vendaService.deletarVenda(id);
+        return ResponseEntity.noContent().build();
+    }
+    
+
+    @GetMapping("/resumo-mensal")
+    public List<java.util.Map<String,Object>> resumoMensal() {
+        // Retorna lista: [{mes:1, ano:2025, lucro: 123.45}, ...]
+        var vendas = vendaService.listar();
+        java.util.Map<String, java.math.BigDecimal> mapa = new java.util.HashMap<>();
+        for (var v : vendas) {
+            var dto = new com.rafacar.dto.VendaDTO(v);
+            java.time.LocalDateTime dt = v.getDataVenda();
+            if (dt == null) dt = java.time.LocalDateTime.now();
+            String key = dt.getYear() + "-" + dt.getMonthValue();
+            java.math.BigDecimal acum = mapa.getOrDefault(key, java.math.BigDecimal.ZERO);
+            acum = acum.add(dto.getLucro());
+            mapa.put(key, acum);
+        }
+        java.util.List<java.util.Map<String,Object>> out = new java.util.ArrayList<>();
+        for (var e : mapa.entrySet()) {
+            String[] parts = e.getKey().split("-");
+            int ano = Integer.parseInt(parts[0]);
+            int mes = Integer.parseInt(parts[1]);
+            java.util.Map<String,Object> m = new java.util.HashMap<>();
+            m.put("ano", ano);
+            m.put("mes", mes);
+            m.put("lucro", e.getValue());
+            out.add(m);
+        }
+        // ordenar por ano/mes desc
+        out.sort((a,b) -> {
+            int ay = ((Integer)b.get("ano")).compareTo((Integer)a.get("ano"));
+            if (ay!=0) return ay;
+            return ((Integer)b.get("mes")).compareTo((Integer)a.get("mes"));
+        });
+        return out;
+    }
+    
 }
