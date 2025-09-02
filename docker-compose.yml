@@ -1,8 +1,9 @@
 version: '3.8'
+
 services:
   postgres:
     image: postgres:15
-    container_name: rafacar
+    container_name: rafacar-postgres
     restart: always
     environment:
       POSTGRES_USER: rafacar
@@ -12,6 +13,22 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+
+  backend:
+    build: .
+    container_name: rafacar-backend
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/rafacar_db
+      SPRING_DATASOURCE_USERNAME: rafacar
+      SPRING_DATASOURCE_PASSWORD: rafacar123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
 volumes:
   postgres_data:
