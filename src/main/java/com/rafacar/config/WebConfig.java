@@ -11,10 +11,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Aplica a configuração a todos os endpoints da API
-                .allowedOrigins("https://rafa-car-frontend-git-main-guilherme-messias-projects.vercel.app")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos HTTP permitidos
-                .allowedHeaders("*") // Permite todos os cabeçalhos
-                .allowCredentials(true); // Permite o envio de credenciais (cookies, etc.)
+        registry.addMapping("/**")
+                .allowedOrigins("[https://rafa-car-frontend.vercel.app](https://rafa-car-frontend.vercel.app)")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos HTTP que o frontend pode usar
+                .allowedHeaders("*") // Permite que o frontend envie qualquer tipo de cabeçalho
+                .allowCredentials(true); // Permite o envio de cookies ou tokens de autenticação
     }
 }
