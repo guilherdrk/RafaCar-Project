@@ -1,9 +1,9 @@
 package com.rafacar.controller;
 
-import com.rafacar.dto.VendaDTO;
-import com.rafacar.model.Venda;
+import com.rafacar.dto.LocacaoDTO;
+import com.rafacar.model.Locacao;
 import com.rafacar.service.VeiculoService;
-import com.rafacar.service.VendaService;
+import com.rafacar.service.LocacaoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,26 +13,26 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/vendas")
+@RequestMapping("/locacoes")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
-public class VendaController {
-    private final VendaService vendaService;
+public class LocacaoController {
+    private final LocacaoService vendaService;
     private final VeiculoService veiculoService;
 
     @PostMapping
-    public ResponseEntity<Venda> criar(@Valid @RequestBody Venda venda) {
+    public ResponseEntity<Locacao> criar(@Valid @RequestBody Locacao venda) {
         // Garante que o veículo existe
         if (venda.getVeiculo() != null && venda.getVeiculo().getId() != null) {
             veiculoService.obter(venda.getVeiculo().getId());
         }
-        Venda salvo = vendaService.criar(venda);
-        return ResponseEntity.created(URI.create("/vendas/" + salvo.getId())).body(salvo);
+        Locacao salvo = vendaService.criar(venda);
+        return ResponseEntity.created(URI.create("/locacoes/" + salvo.getId())).body(salvo);
     }
 
     @GetMapping
-    public List<VendaDTO> listar() {
-        return vendaService.listar().stream().map(VendaDTO::new).toList();
+    public List<LocacaoDTO> listar() {
+        return vendaService.listar().stream().map(LocacaoDTO::new).toList();
     }
 
 
@@ -46,10 +46,10 @@ public class VendaController {
     @GetMapping("/resumo-mensal")
     public List<java.util.Map<String,Object>> resumoMensal() {
         // Retorna lista: [{mes:1, ano:2025, lucro: 123.45}, ...]
-        var vendas = vendaService.listar();
+        var locacoes = vendaService.listar();
         java.util.Map<String, java.math.BigDecimal> mapa = new java.util.HashMap<>();
-        for (var v : vendas) {
-            var dto = new com.rafacar.dto.VendaDTO(v);
+        for (var v : locacoes) {
+            var dto = new com.rafacar.dto.LocacaoDTO(v);
             java.time.LocalDateTime dt = v.getDataVenda();
             if (dt == null) dt = java.time.LocalDateTime.now();
             String key = dt.getYear() + "-" + dt.getMonthValue();
