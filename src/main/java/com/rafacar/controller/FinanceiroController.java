@@ -1,7 +1,7 @@
 package com.rafacar.controller;
 
-import com.rafacar.dto.VendaDTO;
-import com.rafacar.service.VendaService;
+import com.rafacar.dto.LocacaoDTO;
+import com.rafacar.service.LocacaoService;
 import com.rafacar.service.DespesaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class FinanceiroController {
-  private final VendaService vendaService;
+  private final LocacaoService vendaService;
   private final DespesaService despesaService;
 
   @GetMapping("/resumo-mensal")
@@ -26,7 +26,7 @@ public class FinanceiroController {
 
     // Agrupa receitas (lucro das vendas) por ano-mês
     for (var v : vendaService.listar()) {
-      var dto = new VendaDTO(v);
+      var dto = new LocacaoDTO(v);
       LocalDateTime dt = v.getDataVenda() != null ? v.getDataVenda() : LocalDateTime.now();
       String key = dt.getYear() + "-" + dt.getMonthValue();
       rec.put(key, rec.getOrDefault(key, BigDecimal.ZERO).add(dto.getLucro()));

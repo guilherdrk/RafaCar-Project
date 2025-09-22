@@ -1,85 +1,38 @@
 package com.rafacar.model;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Locacao {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime dataInicio;
-    private LocalDateTime dataFim;
-    private Integer quantidadeDias;
+    @ManyToOne(optional = false)
+    private Veiculo veiculo;
 
-    private Double valorDiaria;
+    /** Quantidade de diárias alugadas */
+    @NotNull
+    @Min(1)
+    private Integer quantidade;
 
-    //Valor total customizado
-    private Double valorTotal;
+    private LocalDateTime dataVenda;
 
-    public Locacao(){}
+    private int dias;
+    private BigDecimal precoPorDia;
 
-    public Locacao(Long id, LocalDateTime dataInicio, LocalDateTime dataFim, Integer quantidadeDias, Double valorDiaria, Double valorTotal) {
-        this.id = id;
-        this.dataInicio = dataInicio;
-        this.dataFim = dataFim;
-        this.quantidadeDias = quantidadeDias;
-        this.valorDiaria = valorDiaria;
-        this.valorTotal = valorTotal;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getDataInicio() {
-        return dataInicio;
-    }
-
-    public void setDataInicio(LocalDateTime dataInicio) {
-        this.dataInicio = dataInicio;
-    }
-
-    public LocalDateTime getDataFim() {
-        return dataFim;
-    }
-
-    public void setDataFim(LocalDateTime dataFim) {
-        this.dataFim = dataFim;
-    }
-
-    public Integer getQuantidadeDias() {
-        return quantidadeDias;
-    }
-
-    public void setQuantidadeDias(Integer quantidadeDias) {
-        this.quantidadeDias = quantidadeDias;
-    }
-
-    public Double getValorDiaria() {
-        return valorDiaria;
-    }
-
-    public void setValorDiaria(Double valorDiaria) {
-        this.valorDiaria = valorDiaria;
-    }
-
-    public Double getValorTotal() {
-        return valorTotal;
-    }
-
-    public void setValorTotal(Double valorTotal) {
-        this.valorTotal = valorTotal;
+    @PrePersist
+    public void prePersist(){
+        if (dataVenda == null) dataVenda = LocalDateTime.now();
     }
 }
