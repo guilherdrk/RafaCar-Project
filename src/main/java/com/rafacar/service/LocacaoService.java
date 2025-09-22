@@ -1,33 +1,21 @@
 package com.rafacar.service;
 
-
 import com.rafacar.model.Locacao;
 import com.rafacar.repository.LocacaoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
+@RequiredArgsConstructor
 public class LocacaoService {
+    private final LocacaoRepository repo;
 
-    @Autowired
-    private LocacaoRepository locacaoRepository;
+    public Locacao criar(Locacao v) { return repo.save(v); }
+    public List<Locacao> listar() { return repo.findAll(); }
 
-    public Double calcularValorTotal(Locacao locacao){
-        if(locacao.getValorTotal() != null){
-            return locacao.getValorTotal(); // usa o valor definido manualmente
-        }
-
-        if(locacao.getQuantidadeDias() != null && locacao.getValorDiaria() != null){
-            int dias = locacao.getQuantidadeDias();
-
-            if (dias == 2){
-                return 550.0;
-            } else {
-                return locacao.getValorDiaria() * dias;
-            }
-        }
-
-        return 0.0;
+    public void deletarVenda(Long id) {
+        repo.deleteById(id);
     }
-
 }
