@@ -30,9 +30,19 @@ public class Locacao {
 
     private int dias;
     private BigDecimal precoPorDia;
+    private BigDecimal precoPorDiaCustomizado;
 
     @PrePersist
     public void prePersist(){
         if (dataVenda == null) dataVenda = LocalDateTime.now();
+
+        if (precoPorDiaCustomizado == null && veiculo != null && veiculo.getPreco() != null) {
+            precoPorDiaCustomizado = veiculo.getPreco();
+        }
+        if (precoPorDia == null) {
+            precoPorDia = precoPorDiaCustomizado != null ? precoPorDiaCustomizado
+                    : (veiculo != null ? veiculo.getPreco() : BigDecimal.ZERO);
+        }
     }
+
 }
