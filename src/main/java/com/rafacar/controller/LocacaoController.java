@@ -22,17 +22,33 @@ public class LocacaoController {
 
     @PostMapping
     public ResponseEntity<Locacao> criar(@Valid @RequestBody Locacao venda) {
-        // Garante que o veículo existe
+        // Garante que o veículo existe e carrega o objeto completo
         if (venda.getVeiculo() != null && venda.getVeiculo().getId() != null) {
-            veiculoService.obter(venda.getVeiculo().getId());
+            var veiculo = veiculoService.obter(venda.getVeiculo().getId());
+            venda.setVeiculo(veiculo);
+        } else {
+            // se não veio veiculo ou id, reprovamos a requisição
+            return ResponseEntity.badRequest().build();
         }
+
+        // Se o usuário não enviou precoPorDiaCustomizado, use o preço padrão do veículo
+        if (venda.getPrecoPorDiaCustomizado() == null) {
+            venda.setPrecoPorDiaCustomizado(venda.getVeiculo().getPreco());
+        }
+
+        // Opcional: defina precoPorDia (campo da entidade) como o valor efetivo por dia
+        venda.setPrecoPorDia(venda.getPrecoPorDiaCustomizado());
+
         Locacao salvo = vendaService.criar(venda);
         return ResponseEntity.created(URI.create("/locacoes/" + salvo.getId())).body(salvo);
     }
 
     @GetMapping
     public List<LocacaoDTO> listar() {
-        return vendaService.listar().stream().map(LocacaoDTO::new).toList();
+        return vendaService.listar()
+                .stream()
+                    .map(LocacaoDTO::new)
+                        .toList();
     }
 
 
