@@ -5,23 +5,24 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 
 @Data
 public class LocacaoDTO {
     private Long id;
     private String veiculo;
     private String imagemUrl;
-    private int quantidade;
-    private BigDecimal precoUnitario; // preço usado por dia
-    private BigDecimal custoUnitario;
     private int dias;
-    private BigDecimal total; // total = precoUnitario * quantidade * dias
-    private BigDecimal totalCustomizado; // usando precoPorDiaCustomizado
-    private BigDecimal lucro;
-    private double margem;
-    private BigDecimal precoPorDia; // total / dias (para todos os veículos)
+
+    private BigDecimal precoPorDia;
     private BigDecimal precoPorDiaCustomizado;
-    private java.time.LocalDateTime dataVenda;
+    private BigDecimal precoUnitario; // preco efetivo por dia
+
+    private BigDecimal total;
+    private BigDecimal custoTotal;
+    private BigDecimal lucro;
+    private Double margem;
+    private LocalDateTime dataVenda;
 
     public LocacaoDTO(Locacao l) {
         this.id = l.getId();
@@ -29,40 +30,19 @@ public class LocacaoDTO {
             this.veiculo = l.getVeiculo().getNome();
             this.imagemUrl = l.getVeiculo().getImagemUrl();
         }
-        this.quantidade = l.getQuantidade() == null ? 0 : l.getQuantidade();
-        this.dias = l.getDias() == null ? 0 : l.getDias();
+        this.dias = l.getDias() == null ? 1 : l.getDias();
 
-        this.precoUnitario = l.getPrecoPorDia() == null ? BigDecimal.ZERO : l.getPrecoPorDia();
-        this.precoPorDiaCustomizado = l.getPrecoPorDiaCustomizado() == null ? BigDecimal.ZERO : l.getPrecoPorDiaCustomizado();
-        this.custoUnitario = l.getCustoUnitario() == null ? BigDecimal.ZERO : l.getCustoUnitario();
+        this.precoPorDia = l.getPrecoPorDia() == null ? BigDecimal.ZERO : l.getPrecoPorDia();
+        this.precoPorDiaCustomizado = l.getPrecoPorDiaCustomizado();
 
-        BigDecimal q = BigDecimal.valueOf(this.quantidade);
-        BigDecimal d = BigDecimal.valueOf(Math.max(this.dias, 1)); // evitar divisão por zero
+        this.precoUnitario = (this.precoPorDiaCustomizado != null) ? this.precoPorDiaCustomizado : this.precoPorDia;
 
-        // total com precoUnitario
-        this.total = this.precoUnitario.multiply(q).multiply(BigDecimal.valueOf(this.dias));
-        // total customizado
-        this.totalCustomizado = this.precoPorDiaCustomizado.multiply(q).multiply(BigDecimal.valueOf(this.dias));
+        this.total = this.precoUnitario.multiply(BigDecimal.valueOf(this.dias)).setScale(2, RoundingMode.HALF_UP);
 
-        // lucro = total - custoUnitario * quantidade * dias
-        BigDecimal custoTotal = this.custoUnitario.multiply(q).multiply(BigDecimal.valueOf(this.dias));
-        this.lucro = this.total.subtract(custoTotal);
+        this.custoTotal = l.getCustoTotal() == null ? BigDecimal.ZERO : l.getCustoTotal().setScale(2, RoundingMode.HALF_UP);
+        this.lucro = l.getLucro() == null ? BigDecimal.ZERO : l.getLucro().setScale(2, RoundingMode.HALF_UP);
 
-        // margem em % (segurança: total != 0)
-        if (this.total.signum() > 0) {
-            this.margem = this.lucro.doubleValue() / this.total.doubleValue() * 100.0;
-        } else {
-            this.margem = 0.0;
-        }
-
-        // preço por dia (valor agregado para todos os itens) -> total/dias
-        if (this.dias > 0) {
-            this.precoPorDia = this.total.divide(d, 2, RoundingMode.HALF_UP);
-            this.precoPorDiaCustomizado = this.totalCustomizado.divide(d, 2, RoundingMode.HALF_UP);
-        } else {
-            this.precoPorDia = BigDecimal.ZERO;
-            this.precoPorDiaCustomizado = BigDecimal.ZERO;
-        }
+        this.margem = this.total.signum() > 0 ? (this.lucro.doubleValue() / this.total.doubleValue()) * 100.0 : 0.0;
 
         this.dataVenda = l.getDataVenda();
     }

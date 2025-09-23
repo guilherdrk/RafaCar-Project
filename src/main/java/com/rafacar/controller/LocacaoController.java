@@ -21,14 +21,12 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class LocacaoController {
-
-    // renomeie se preferir para vendaService; aqui usei locacaoService para clareza
     private final LocacaoService locacaoService;
     private final VeiculoService veiculoService;
 
     @PostMapping
     public ResponseEntity<LocacaoDTO> criar(@Valid @RequestBody Locacao venda) {
-        // garante que o veículo existe (se passado)
+        // Garante que o veículo existe
         if (venda.getVeiculo() != null && venda.getVeiculo().getId() != null) {
             veiculoService.obter(venda.getVeiculo().getId());
         }
@@ -39,9 +37,10 @@ public class LocacaoController {
 
     @GetMapping
     public List<LocacaoDTO> listar() {
-        return locacaoService.listar().stream()
+        return locacaoService.listar()
+                .stream()
                 .map(LocacaoDTO::new)
-                .collect(Collectors.toList()); // compatível com Java 8+
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -61,7 +60,6 @@ public class LocacaoController {
         locacaoService.remover(id);
         return ResponseEntity.noContent().build();
     }
-
     @GetMapping("/resumo-mensal")
     public List<Map<String, Object>> resumoMensal() {
         List<Locacao> locacoes = locacaoService.listar();
