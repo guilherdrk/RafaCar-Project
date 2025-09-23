@@ -12,10 +12,20 @@ import java.util.List;
 public class LocacaoService {
     private final LocacaoRepository repo;
 
+
     public Locacao criar(Locacao v) { return repo.save(v); }
     public List<Locacao> listar() { return repo.findAll(); }
-
-    public void deletarVenda(Long id) {
-        repo.deleteById(id);
+    public Locacao obter(Long id) { return repo.findById(id).orElseThrow(); }
+    public Locacao atualizar(Long id, Locacao novo) {
+        Locacao atual = obter(id);
+        // atualizar campos permitidos
+        atual.setVeiculo(novo.getVeiculo());
+        atual.setQuantidade(novo.getQuantidade());
+        atual.setDias(novo.getDias());
+        atual.setPrecoPorDia(novo.getPrecoPorDia());
+        atual.setPrecoPorDiaCustomizado(novo.getPrecoPorDiaCustomizado());
+        atual.setCustoUnitario(novo.getCustoUnitario());
+        return repo.save(atual);
     }
+    public void remover(Long id) { repo.deleteById(id); }
 }

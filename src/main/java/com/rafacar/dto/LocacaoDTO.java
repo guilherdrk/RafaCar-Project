@@ -12,62 +12,58 @@ public class LocacaoDTO {
     private String veiculo;
     private String imagemUrl;
     private int quantidade;
-    private BigDecimal precoUnitario;
+    private BigDecimal precoUnitario; // preço usado por dia
     private BigDecimal custoUnitario;
-    private BigDecimal total;   // receita da venda (preço x dias)
-    private BigDecimal totalCustomizado;
-    private BigDecimal lucro;   // total - custoTotal
-    private double margem;      // %
     private int dias;
-    private BigDecimal precoPorDia;
+    private BigDecimal total; // total = precoUnitario * quantidade * dias
+    private BigDecimal totalCustomizado; // usando precoPorDiaCustomizado
+    private BigDecimal lucro;
+    private double margem;
+    private BigDecimal precoPorDia; // total / dias (para todos os veículos)
     private BigDecimal precoPorDiaCustomizado;
+    private java.time.LocalDateTime dataVenda;
 
+    public LocacaoDTO(Locacao l) {
+        this.id = l.getId();
+        if (l.getVeiculo() != null) {
+            this.veiculo = l.getVeiculo().getNome();
+            this.imagemUrl = l.getVeiculo().getImagemUrl();
+        }
+        this.quantidade = l.getQuantidade() == null ? 0 : l.getQuantidade();
+        this.dias = l.getDias() == null ? 0 : l.getDias();
 
+        this.precoUnitario = l.getPrecoPorDia() == null ? BigDecimal.ZERO : l.getPrecoPorDia();
+        this.precoPorDiaCustomizado = l.getPrecoPorDiaCustomizado() == null ? BigDecimal.ZERO : l.getPrecoPorDiaCustomizado();
+        this.custoUnitario = l.getCustoUnitario() == null ? BigDecimal.ZERO : l.getCustoUnitario();
 
-    public LocacaoDTO(Locacao venda) {
-        this.id = venda.getId();
-        this.veiculo = venda.getVeiculo() != null ? venda.getVeiculo().getNome() : null;
-        this.imagemUrl = venda.getVeiculo() != null ? venda.getVeiculo().getImagemUrl() : null;
-        this.quantidade = venda.getQuantidade() != null ? venda.getQuantidade() : 0;
-        this.precoUnitario = venda.getVeiculo() != null && venda.getVeiculo().getPreco() != null
-                ? venda.getVeiculo().getPreco()
-                : BigDecimal.ZERO;
-        this.custoUnitario = venda.getVeiculo() != null && venda.getVeiculo().getCusto() != null
-                ? venda.getVeiculo().getCusto()
-                : BigDecimal.ZERO;
+        BigDecimal q = BigDecimal.valueOf(this.quantidade);
+        BigDecimal d = BigDecimal.valueOf(Math.max(this.dias, 1)); // evitar divisão por zero
 
-        // dias
-        this.dias = venda.getDias();
+        // total com precoUnitario
+        this.total = this.precoUnitario.multiply(q).multiply(BigDecimal.valueOf(this.dias));
+        // total customizado
+        this.totalCustomizado = this.precoPorDiaCustomizado.multiply(q).multiply(BigDecimal.valueOf(this.dias));
 
-        // Total = precoUnitario * quantidade * dias
-        BigDecimal q = BigDecimal.valueOf(Math.max(this.quantidade, 0));
-        BigDecimal d = BigDecimal.valueOf(Math.max(this.dias, 0));
-        this.total = precoUnitario.multiply(q).multiply(d);
+        // lucro = total - custoUnitario * quantidade * dias
+        BigDecimal custoTotal = this.custoUnitario.multiply(q).multiply(BigDecimal.valueOf(this.dias));
+        this.lucro = this.total.subtract(custoTotal);
 
-        // Total customizado: se precoPorDiaCustomizado estiver presente, use ele * quantidade * dias.
-        BigDecimal precoCustomPorDia = venda.getPrecoPorDiaCustomizado() != null
-                ? venda.getPrecoPorDiaCustomizado()
-                : BigDecimal.ZERO;
-        this.totalCustomizado = precoCustomPorDia.multiply(q).multiply(d);
+        // margem em % (segurança: total != 0)
+        if (this.total.signum() > 0) {
+            this.margem = this.lucro.doubleValue() / this.total.doubleValue() * 100.0;
+        } else {
+            this.margem = 0.0;
+        }
 
-        // Custo total = custoUnitario * quantidade * dias
-        BigDecimal custoTotal = custoUnitario.multiply(q).multiply(d);
-
-        // Lucro = total - custoTotal
-        this.lucro = total.subtract(custoTotal);
-
-        // Margem (%)
-        this.margem = total.signum() > 0 ? (lucro.doubleValue() / total.doubleValue()) * 100.0 : 0.0;
-
-        // Preço por dia (para toda a locação): total / dias (evita dividir por zero)
+        // preço por dia (valor agregado para todos os itens) -> total/dias
         if (this.dias > 0) {
-            // preço por dia total (para todos os veículos juntos)
             this.precoPorDia = this.total.divide(d, 2, RoundingMode.HALF_UP);
-            // preço por dia customizado (para todos os veículos juntos)
             this.precoPorDiaCustomizado = this.totalCustomizado.divide(d, 2, RoundingMode.HALF_UP);
         } else {
             this.precoPorDia = BigDecimal.ZERO;
             this.precoPorDiaCustomizado = BigDecimal.ZERO;
         }
+
+        this.dataVenda = l.getDataVenda();
     }
 }
