@@ -1,1 +1,1 @@
-ALTER TABLE locacao DROP COLUMN dias;
+ALTER TABLE locacao DROP COLUMN quantidade;
