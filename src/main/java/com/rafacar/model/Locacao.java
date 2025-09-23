@@ -14,35 +14,50 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Locacao {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "veiculo_id")
     private Veiculo veiculo;
 
-    /** Quantidade de diárias alugadas */
     @NotNull
     @Min(1)
     private Integer quantidade;
 
-    private LocalDateTime dataVenda;
+    @NotNull
+    @Min(1)
+    private Integer dias;
 
-    private int dias;
+    // preço por dia efetivo usado para cálculo (pode ser default do veículo ou customizado)
     private BigDecimal precoPorDia;
+
+    // valor customizado que o usuário pode informar (opcional)
     private BigDecimal precoPorDiaCustomizado;
+
+    // custo unitário (padrão pego do veículo em prePersist quando null)
+    private BigDecimal custoUnitario;
+
+    private LocalDateTime dataVenda;
 
     @PrePersist
     public void prePersist(){
         if (dataVenda == null) dataVenda = LocalDateTime.now();
 
-        if (precoPorDiaCustomizado == null && veiculo != null && veiculo.getPreco() != null) {
-            precoPorDiaCustomizado = veiculo.getPreco();
-        }
-        if (precoPorDia == null) {
-            precoPorDia = precoPorDiaCustomizado != null ? precoPorDiaCustomizado
-                    : (veiculo != null ? veiculo.getPreco() : BigDecimal.ZERO);
+        if (veiculo != null) {
+            if (custoUnitario == null) custoUnitario = veiculo.getCusto();
+            if (precoPorDiaCustomizado == null && veiculo.getPreco() != null) {
+                precoPorDiaCustomizado = veiculo.getPreco();
+            }
+            if (precoPorDia == null) {
+                precoPorDia = precoPorDiaCustomizado != null ? precoPorDiaCustomizado
+                        : (veiculo.getPreco() != null ? veiculo.getPreco() : BigDecimal.ZERO);
+            }
+        } else {
+            if (precoPorDia == null) precoPorDia = precoPorDiaCustomizado == null ? BigDecimal.ZERO : precoPorDiaCustomizado;
+            if (custoUnitario == null) custoUnitario = BigDecimal.ZERO;
         }
     }
-
 }
