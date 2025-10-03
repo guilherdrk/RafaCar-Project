@@ -19,10 +19,8 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig {
 
     @Bean
-    @Primary
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Usa a CorsConfigurationSource abaixo
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
@@ -32,29 +30,29 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // <-- Colocar @Primary AQUI, não em securityFilterChain
     @Bean
+    @Primary
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Use allowedOriginPatterns para aceitar ORIGENS com wildcard (mais robusto que setAllowedOrigins("*"))
-        // Em dev você pode usar Arrays.asList("http://127.0.0.1:5501") explicitamente
-        config.setAllowedOriginPatterns(Arrays.asList("*")); // ou List.of("http://127.0.0.1:5501")
+        // Em dev você pode permitir tudo; em produção coloque origens explícitas
+        config.setAllowedOriginPatterns(Arrays.asList("*"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin", "Authorization", "Content-Type"));
-        config.setAllowCredentials(true); // se usa cookies/Authorization, caso contrário pode ser false
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
 
-    // Registrar o CorsFilter explicitamente em ordem alta para garantir que os headers sejam aplicados
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean(CorsConfigurationSource source) {
         CorsFilter filter = new CorsFilter(source);
         FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(filter);
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE); // ordem 0 (muito alta)
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return bean;
     }
 }
